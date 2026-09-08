@@ -1,0 +1,1845 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>谢苗角色宇宙 · 动作心性测验</title>
+  <style>
+    :root {
+      --bg-color: #f5f0e6; /* 宣纸暖米底 */
+      --card-bg: rgba(254, 252, 248, 0.95); /* 暖白宣纸卡片 */
+      --card-border: #dcd3c2; /* 浅米古色边框 */
+      --card-inner-border: rgba(140, 106, 45, 0.2); /* 金石内框 */
+      --text-main: #262320; /* 浓墨文字 */
+      --text-sub: #6e675e; /* 淡墨副文字 */
+      --accent-red: #a8281e; /* 经典朱砂红 */
+      --accent-red-light: rgba(168, 40, 30, 0.08);
+      --accent-red-glow: rgba(168, 40, 30, 0.25);
+      --accent-gold: #8c6a2d; /* 熟褐古铜金 */
+      --ink-dark: #1e1c19;
+      --font-title: "Noto Serif SC", "Songti SC", "SimSun", serif;
+      --font-body: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 12%, rgba(168, 40, 30, 0.06) 0%, transparent 65%),
+        radial-gradient(circle at 85% 85%, rgba(140, 106, 45, 0.07) 0%, transparent 55%);
+    }
+
+    /* 宣纸微噪点纹理生成 (纯SVG内联) */
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      opacity: 0.045;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* 宣纸古韵暗晕 */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle, transparent 40%, rgba(215, 206, 189, 0.35) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* 页面初次加载的全屏水墨开卷动画层 */
+    #pageLoadOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: var(--bg-color);
+      z-index: 9999;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #pageLoadCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .page-load-intro-title {
+      position: relative;
+      z-index: 10000;
+      font-family: var(--font-title);
+      font-size: 1.8rem;
+      letter-spacing: 6px;
+      color: var(--accent-red);
+      opacity: 0;
+      transform: scale(0.92);
+      transition: all 0.5s ease-out;
+      font-weight: 700;
+    }
+    .page-load-intro-title.show {
+      opacity: 0.95;
+      transform: scale(1);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 680px;
+      padding: 24px 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* 经典双框线卡片 (金石古籍感) */
+    .ink-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      outline: 1px solid var(--card-inner-border);
+      outline-offset: -7px;
+      border-radius: 4px;
+      padding: 40px 32px;
+      box-shadow: 0 16px 40px rgba(90, 75, 55, 0.08), 0 2px 6px rgba(90, 75, 55, 0.04);
+      position: relative;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      animation: cardInkEmerge 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes cardInkEmerge {
+      0% {
+        opacity: 0;
+        filter: blur(4px);
+        transform: translateY(18px);
+      }
+      100% {
+        opacity: 1;
+        filter: blur(0);
+        transform: translateY(0);
+      }
+    }
+
+    /* 卡片四角折角 */
+    .ink-card::before, .ink-card::after {
+      content: "";
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-color: var(--accent-gold);
+      border-style: solid;
+      pointer-events: none;
+    }
+    .ink-card::before { top: 2px; left: 2px; border-width: 2px 0 0 2px; }
+    .ink-card::after { bottom: 2px; right: 2px; border-width: 0 2px 2px 0; }
+
+    /* 标题区 */
+    .title-area {
+      text-align: center;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .sub-title {
+      color: var(--accent-gold);
+      font-size: 0.9rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .main-title-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .main-title {
+      font-family: var(--font-title);
+      font-size: 2.25rem;
+      letter-spacing: 5px;
+      color: #1e1b18;
+      font-weight: 700;
+    }
+
+    /* 标题旁精致朱砂微印章 */
+    .title-mini-seal {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border: 1.5px solid var(--accent-red);
+      color: var(--accent-red);
+      font-family: var(--font-title);
+      font-size: 0.72rem;
+      font-weight: 700;
+      border-radius: 2px;
+      line-height: 1;
+      opacity: 0.88;
+      transform: rotate(-3deg);
+      user-select: none;
+    }
+
+    /* 亮点标签栏 */
+    .feature-pills {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 12px 0 24px 0;
+      flex-wrap: wrap;
+    }
+    .feature-pill {
+      font-family: var(--font-title);
+      font-size: 0.8rem;
+      color: var(--accent-gold);
+      background: rgba(140, 106, 45, 0.08);
+      border: 1px solid rgba(140, 106, 45, 0.25);
+      padding: 4px 14px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+    }
+
+    .intro-desc {
+      color: #524b43;
+      font-size: 0.95rem;
+      line-height: 1.85;
+      text-align: justify;
+      margin: 20px 0 34px 0;
+      padding: 18px 22px;
+      border-left: 3px solid var(--accent-red);
+      background: rgba(238, 230, 216, 0.55);
+      border-radius: 0 2px 2px 0;
+    }
+
+    /* 按钮 */
+    .btn-ink {
+      display: block;
+      width: 100%;
+      background: #2b2824;
+      border: 1px solid #453e37;
+      color: #faf7f2;
+      padding: 16px 24px;
+      font-family: var(--font-title);
+      font-size: 1.1rem;
+      letter-spacing: 3px;
+      cursor: pointer;
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      text-align: center;
+      user-select: none;
+    }
+
+    .btn-ink:hover {
+      background: #1e1c19;
+      border-color: var(--accent-red);
+      box-shadow: 0 4px 16px rgba(43, 40, 36, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .btn-ink-primary {
+      background: linear-gradient(135deg, #a8281e 0%, #821c14 100%);
+      border-color: #a8281e;
+      color: #fff;
+    }
+    .btn-ink-primary:hover {
+      background: linear-gradient(135deg, #ba2f24 0%, #942018 100%);
+      box-shadow: 0 4px 20px var(--accent-red-glow);
+    }
+
+    /* 进度条 */
+    .progress-bar-wrap {
+      margin-bottom: 24px;
+    }
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      color: var(--accent-gold);
+      font-size: 0.88rem;
+      margin-bottom: 8px;
+      font-family: var(--font-title);
+      letter-spacing: 1px;
+    }
+    .progress-track {
+      height: 4px;
+      background: #e4dccb;
+      width: 100%;
+      overflow: visible;
+      border-radius: 2px;
+      position: relative;
+      box-shadow: inset 0 1px 2px rgba(90, 75, 55, 0.1);
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #c5a059, #a8281e, #d83d2e);
+      width: 0%;
+      transition: width 0.4s ease;
+      position: relative;
+      border-radius: 2px;
+      box-shadow: 0 0 10px rgba(168, 40, 30, 0.65), 0 0 18px rgba(197, 160, 89, 0.45);
+    }
+    .progress-tip {
+      position: absolute;
+      right: -3px;
+      top: -3.5px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #fff5ea;
+      border: 2px solid var(--accent-red);
+      box-shadow: 0 0 10px rgba(216, 61, 46, 0.95), 0 0 20px rgba(197, 160, 89, 0.7);
+      animation: progressPulse 1.2s ease-in-out infinite alternate;
+    }
+    @keyframes progressPulse {
+      from { transform: scale(0.9); box-shadow: 0 0 8px rgba(216, 61, 46, 0.8); }
+      to { transform: scale(1.2); box-shadow: 0 0 16px rgba(216, 61, 46, 1), 0 0 24px rgba(197, 160, 89, 0.85); }
+    }
+
+    /* 题号大水印 */
+    .question-watermark {
+      position: absolute;
+      top: 14px;
+      right: 24px;
+      font-family: var(--font-title);
+      font-size: 5.2rem;
+      font-weight: 900;
+      color: var(--accent-gold);
+      opacity: 0.08;
+      pointer-events: none;
+      user-select: none;
+      line-height: 1;
+    }
+
+    /* 题目 */
+    .question-box {
+      margin-bottom: 24px;
+    }
+    .question-title {
+      font-family: var(--font-title);
+      font-size: 1.15rem;
+      line-height: 1.75;
+      color: #1e1b18;
+      margin-bottom: 24px;
+      font-weight: 600;
+      position: relative;
+      padding-left: 14px;
+      border-left: 3px solid var(--accent-red);
+    }
+
+    /* 选项卡 */
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 18px;
+      background: #fbf9f4;
+      border: 1px solid #ddd4c3;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      color: #38342f;
+      line-height: 1.6;
+      font-size: 0.95rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(100, 85, 70, 0.03);
+      animation: optionSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes optionSlideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .option-item:nth-child(1) { animation-delay: 0.03s; }
+    .option-item:nth-child(2) { animation-delay: 0.07s; }
+    .option-item:nth-child(3) { animation-delay: 0.11s; }
+    .option-item:nth-child(4) { animation-delay: 0.15s; }
+
+    .option-item:hover {
+      background: rgba(168, 40, 30, 0.04);
+      border-color: #b85e56;
+      color: #1a1816;
+      transform: translateX(4px);
+    }
+
+    .option-item.selected {
+      background: rgba(168, 40, 30, 0.09);
+      border-color: var(--accent-red);
+      color: #8c1e15;
+      font-weight: 500;
+      box-shadow: 0 2px 10px rgba(168, 40, 30, 0.1);
+    }
+
+    .option-item.clicked {
+      transform: scale(0.985);
+      border-color: var(--accent-red) !important;
+      background: rgba(168, 40, 30, 0.12) !important;
+    }
+
+    .option-tag {
+      font-family: var(--font-title);
+      color: var(--accent-gold);
+      font-weight: 700;
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border: 1px solid #c9bca6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      border-radius: 2px;
+      background: #f3ecde;
+    }
+    .option-item.selected .option-tag {
+      background: var(--accent-red);
+      color: #fff;
+      border-color: var(--accent-red);
+    }
+
+    /* 水墨涟漪微波纹 */
+    .ink-ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(168, 40, 30, 0.28) 0%, rgba(140, 106, 45, 0.1) 60%, transparent 80%);
+      transform: scale(0);
+      animation: rippleAnim 0.55s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes rippleAnim {
+      to {
+        transform: scale(3.5);
+        opacity: 0;
+      }
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 28px;
+      gap: 16px;
+    }
+    .btn-prev {
+      width: 120px;
+      padding: 12px;
+      font-size: 0.9rem;
+    }
+
+    /* 全屏水墨转场遮罩（米色与朱砂红主题） */
+    .ink-transition-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 999;
+      pointer-events: none;
+      overflow: hidden;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+    }
+    #inkSplashCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .ink-splash-center-text {
+      position: relative;
+      z-index: 1000;
+      font-family: var(--font-title);
+      font-size: 2.8rem;
+      letter-spacing: 14px;
+      color: #fff9ed;
+      opacity: 0;
+      transform: scale(0.92);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      text-shadow: 
+        0 0 18px rgba(255, 220, 110, 0.95),
+        0 0 35px rgba(212, 160, 60, 0.8),
+        0 0 55px rgba(168, 40, 30, 0.6),
+        0 2px 6px rgba(50, 20, 10, 0.6);
+      user-select: none;
+      pointer-events: none;
+      font-weight: 700;
+      animation: goldShimmer 1.5s ease-in-out infinite alternate;
+    }
+    @keyframes goldShimmer {
+      from { filter: drop-shadow(0 0 10px rgba(255, 215, 80, 0.7)); }
+      to { filter: drop-shadow(0 0 24px rgba(255, 230, 130, 0.95)); }
+    }
+    .ink-splash-center-text.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* 结果页 */
+    .character-avatar-wrap {
+      width: 156px;
+      height: 156px;
+      margin: 0 auto 16px auto;
+      border-radius: 4px;
+      border: 2px solid var(--accent-gold);
+      box-shadow: 0 6px 24px rgba(140, 106, 45, 0.22);
+      position: relative;
+      overflow: hidden;
+      background: #eee6d6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .character-avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 72%, rgba(0,0,0,0) 100%);
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 72%, rgba(0,0,0,0) 100%);
+      transform: scale(1.05);
+      animation: kenBurns 4s ease-out forwards;
+    }
+    @keyframes kenBurns {
+      from { transform: scale(1.07); }
+      to { transform: scale(1.0); }
+    }
+    .character-avatar-placeholder {
+      font-family: var(--font-title);
+      font-size: 2.8rem;
+      color: var(--accent-gold);
+      opacity: 0.85;
+      user-select: none;
+    }
+
+    .seal-stamp {
+      position: absolute;
+      top: 26px;
+      right: 24px;
+      width: 48px;
+      height: 48px;
+      border: 2.5px solid var(--accent-red);
+      color: var(--accent-red);
+      font-family: var(--font-title);
+      font-size: 0.78rem;
+      font-weight: 900;
+      line-height: 1.1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 3px;
+      transform: rotate(4deg);
+      opacity: 0.88;
+      box-shadow: inset 0 0 4px rgba(168, 40, 30, 0.3), 0 0 2px rgba(168, 40, 30, 0.4);
+      user-select: none;
+      letter-spacing: 2px;
+      text-indent: 2px;
+    }
+
+    .result-header {
+      text-align: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #ded6c5;
+      margin-bottom: 28px;
+      position: relative;
+    }
+    .result-subtitle {
+      color: var(--accent-gold);
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .result-name {
+      font-family: var(--font-title);
+      font-size: 2.3rem;
+      color: #1e1b18;
+      letter-spacing: 4px;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+    .result-movie {
+      color: var(--text-sub);
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+    }
+    .result-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: rgba(168, 40, 30, 0.08);
+      border: 1px solid var(--accent-red);
+      color: #9e2318;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      border-radius: 2px;
+      font-family: var(--font-title);
+      font-weight: 600;
+    }
+    .result-quote {
+      font-family: var(--font-title);
+      font-size: 1.02rem;
+      color: var(--accent-gold);
+      margin: 14px 0 16px 0;
+      font-style: italic;
+      letter-spacing: 1.5px;
+      line-height: 1.6;
+      padding: 0 10px;
+    }
+    .match-percent {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--accent-gold);
+      font-weight: 600;
+    }
+
+    .radar-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px 0 28px 0;
+    }
+    #radarCanvas {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .analysis-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .analysis-block {
+      background: rgba(240, 233, 221, 0.5);
+      border-left: 3px solid var(--accent-gold);
+      padding: 12px 16px;
+      border-radius: 0 2px 2px 0;
+    }
+    .analysis-label {
+      font-family: var(--font-title);
+      font-size: 0.9rem;
+      color: var(--accent-gold);
+      margin-bottom: 4px;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+    .analysis-text {
+      color: #3d3832;
+      font-size: 0.92rem;
+      line-height: 1.7;
+    }
+
+    .bonds-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .bond-box {
+      background: #fbf8f2;
+      border: 1px solid #dcd4c3;
+      padding: 12px 14px;
+      border-radius: 2px;
+    }
+    .bond-title {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+    }
+    .bond-val {
+      font-family: var(--font-title);
+      color: #1e1b18;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .card-footer-watermark {
+      text-align: center;
+      margin-top: 32px;
+      padding-top: 18px;
+      border-top: 1px dashed #dcd4c3;
+      color: var(--text-sub);
+      font-size: 0.78rem;
+      letter-spacing: 2px;
+      font-family: var(--font-title);
+      opacity: 0.7;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 14px;
+    }
+
+    /* 推演转场过渡 */
+    #loadingScreen {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .ink-drop-loader {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 24px auto;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--accent-red) 30%, transparent 70%);
+      animation: inkPulse 1.4s ease-in-out infinite;
+    }
+    @keyframes inkPulse {
+      0% { transform: scale(0.6); opacity: 0.4; }
+      50% { transform: scale(1.2); opacity: 0.9; }
+      100% { transform: scale(0.6); opacity: 0.4; }
+    }
+    .loading-text {
+      font-family: var(--font-title);
+      color: var(--accent-gold);
+      font-size: 1.15rem;
+      letter-spacing: 3px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #2b2824;
+      border: 1px solid var(--accent-gold);
+      color: #faf7f2;
+      padding: 10px 24px;
+      font-size: 0.9rem;
+      border-radius: 2px;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 10000;
+      letter-spacing: 1px;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    @media (max-width: 520px) {
+      .ink-card { padding: 28px 20px; }
+      .main-title { font-size: 1.75rem; }
+      .bonds-grid { grid-template-columns: 1fr; }
+      .result-name { font-size: 1.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- 页面刚打开瞬间的宣纸水墨开卷动画层 -->
+<div id="pageLoadOverlay">
+  <canvas id="pageLoadCanvas"></canvas>
+  <div id="pageLoadTitle" class="page-load-intro-title">❖ 谢苗宇宙 ❖</div>
+</div>
+
+<!-- 点击开始答题时的全屏朱砂水墨转场遮罩 (米色与朱砂红) -->
+<div id="inkTransitionOverlay" class="ink-transition-overlay">
+  <canvas id="inkSplashCanvas"></canvas>
+  <div class="ink-splash-center-text" id="inkSplashText">以武会友</div>
+</div>
+
+<div class="container">
+  <!-- 首页 -->
+  <div id="startScreen" class="ink-card">
+    <div class="title-area">
+      <div class="sub-title">动作宇宙 · 精神图腾</div>
+      <div class="main-title-wrap">
+        <h1 class="main-title">谢苗宇宙角色测试</h1>
+        <span class="title-mini-seal">功夫</span>
+      </div>
+      <div class="feature-pills">
+        <span class="feature-pill">20位银幕化身</span>
+        <span class="feature-pill">四维心性推演</span>
+        <span class="feature-pill">五维水墨战力</span>
+      </div>
+    </div>
+    <div class="intro-desc">
+      从三十年前一杆长枪威震江湖的少年，到今日听风辨位、拳拳到肉的硬派宗师。谢苗在光影之间刻画了数十位性格迥异、风骨各具的英雄与凡人。<br><br>
+      本测验精选 15 道硬派心性题，通过四维人格距离判定，测一测在谢苗的动作宇宙里，哪一位才是你心性相照的本命化身。
+    </div>
+    <button id="btnStart" class="btn-ink btn-ink-primary" onclick="startQuiz(event)">开启试炼</button>
+  </div>
+
+  <!-- 答题页 -->
+  <div id="quizScreen" class="ink-card" style="display: none;">
+    <!-- 题号大水印 -->
+    <div id="questionWatermark" class="question-watermark">01</div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-info">
+        <span id="progressText" style="font-weight: 600;">第 1 / 15 题</span>
+      </div>
+      <div class="progress-track">
+        <div id="progressFill" class="progress-fill">
+          <span class="progress-tip"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="question-box">
+      <div id="questionTitle" class="question-title"></div>
+      <div id="optionsList" class="options-list"></div>
+    </div>
+
+    <div class="nav-buttons">
+      <button id="btnPrev" class="btn-ink btn-prev" onclick="prevQuestion()" style="visibility: hidden;">上一题</button>
+    </div>
+  </div>
+
+  <!-- 推演过渡层 -->
+  <div id="loadingScreen" class="ink-card" style="display: none;">
+    <div class="ink-drop-loader"></div>
+    <div class="loading-text">正在听风辨位，推演你的江湖本命…</div>
+  </div>
+
+  <!-- 结果页 -->
+  <div id="resultScreen" class="ink-card" style="display: none;">
+    <div class="result-header">
+      <!-- 朱砂压角方印 -->
+      <div class="seal-stamp">
+        <div>谢苗</div>
+        <div>宇宙</div>
+      </div>
+
+      <!-- 角色图片区域（支持羽化画卷与慢推镜） -->
+      <div id="resAvatarWrap" class="character-avatar-wrap">
+        <img id="resImage" class="character-avatar-img" src="" alt="角色立绘" style="display:none;" onerror="handleImageFallback(this)">
+        <div id="resAvatarPlaceholder" class="character-avatar-placeholder">武</div>
+      </div>
+      <div class="result-subtitle">测验结果 · 你的本命化身</div>
+      <div id="resName" class="result-name"></div>
+      <div id="resMovie" class="result-movie"></div>
+      <div id="resBadge" class="result-badge"></div>
+      <div id="resQuote" class="result-quote"></div>
+      <div id="resMatch" class="match-percent"></div>
+    </div>
+
+    <!-- 五维雷达图 -->
+    <div class="radar-container">
+      <canvas id="radarCanvas" width="360" height="300"></canvas>
+    </div>
+
+    <!-- 深度剖析 -->
+    <div class="analysis-section">
+      <div class="analysis-block">
+        <div class="analysis-label">【精神图腾】</div>
+        <div id="resTotem" class="analysis-text"></div>
+      </div>
+      <div class="analysis-block">
+        <div class="analysis-label">【现实镜像】</div>
+        <div id="resMirror" class="analysis-text"></div>
+      </div>
+      <div class="analysis-block">
+        <div class="analysis-label">【致命盲区】</div>
+        <div id="resBlindspot" class="analysis-text"></div>
+      </div>
+    </div>
+
+    <!-- 羁绊关系 -->
+    <div class="bonds-grid">
+      <div class="bond-box">
+        <div class="bond-title">天生同袍（最强搭档）</div>
+        <div id="resAlly" class="bond-val"></div>
+      </div>
+      <div class="bond-box">
+        <div class="bond-title">宿命对决（理念碰撞）</div>
+        <div id="resRival" class="bond-val"></div>
+      </div>
+    </div>
+
+    <div class="result-actions">
+      <button class="btn-ink" onclick="copyResult()">复制结果</button>
+      <button class="btn-ink btn-ink-primary" onclick="restartQuiz()">重新测验</button>
+    </div>
+
+    <!-- 截图分享印记 -->
+    <div class="card-footer-watermark">
+      ❖ 谢苗动作宇宙 · 心性寻宗测验 ❖
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast">结果已复制至剪贴板</div>
+
+<script>
+const QUIZ_CONFIG = {
+  // 15 道题目配置
+  questions: [
+    {
+      id: 1,
+      stage: "第一幕：入局与应激",
+      title: "你被派入一个关系错综复杂的新环境，旧势力带着潜规则向你施压。此时你的第一反应是：",
+      options: [
+        { type: "A", text: "直接拍出明文规矩，哪怕彻底撕破脸，也要把歪风邪道压下去。" },
+        { type: "B", text: "不言不语装作顺从，暗中摸清所有人的死穴，择机一击毙命。" },
+        { type: "C", text: "表面附和钻进制度漏洞，挑动他们内部互相撕咬，自己坐收渔利。" },
+        { type: "D", text: "不掺和任何派系纷争，只把手头分内事做到极致，让人挑不出瑕疵。" }
+      ]
+    },
+    {
+      id: 2,
+      stage: "第一幕：入局与应激",
+      title: "面对名利场中靠吹嘘造势、花架子炒作而风生水起的当红人物，你的态度是：",
+      options: [
+        { type: "A", text: "毫不客气地当众拆穿伪装，绝不容许欺世盗名之辈继续招摇撞骗。" },
+        { type: "B", text: "冷眼旁观他起高楼，深知虚妄之物自会崩塌，届时再上去补刀。" },
+        { type: "C", text: "既然大家都在演戏，不如以更夸张离谱的手段陪他玩，戏弄一番。" },
+        { type: "D", text: "毫无兴趣甚至觉得聒噪，安心守在自己的安静角落里打磨真本事。" }
+      ]
+    },
+    {
+      id: 3,
+      stage: "第一幕：入局与应激",
+      title: "团队陷入多方扯皮、谁也不肯负责的胶着死局，你通常会扮演什么角色？",
+      options: [
+        { type: "A", text: "第一个站出来扛旗领头，哪怕前方是雷区也先硬踩过去再说。" },
+        { type: "B", text: "一言不发地找出最关键的死结，直接切除病灶，完全不讲情面。" },
+        { type: "C", text: "把现有的桌子整个掀翻，换一套所有人都没想过的全新玩法。" },
+        { type: "D", text: "不抢聚光灯也不争功名，把最脏最累的兜底硬活一个人全包圆。" }
+      ]
+    },
+    {
+      id: 4,
+      stage: "第一幕：入局与应激",
+      title: "在公共场合遭遇蛮不讲理、居高临下的挑衅与霸凌，你的应对方式是：",
+      options: [
+        { type: "A", text: "直接贴身控制并依法惩戒，用绝对的力量当场碾碎嚣张气焰。" },
+        { type: "B", text: "不逞口舌之争，眼中唯有要害，出手便是让人胆寒的致命狠招。" },
+        { type: "C", text: "随手拿起身边杂物借力打力，三两下让挑衅者狼狈出丑求饶。" },
+        { type: "D", text: "只要没触碰核心底线便懒得理会，像看空气一样从他身边走过。" }
+      ]
+    },
+    {
+      id: 5,
+      stage: "第二幕：绝境与交锋",
+      title: "弹尽粮绝、孤立无援（资源枯竭且断了后路），支撑你死战不退的信念是：",
+      options: [
+        { type: "A", text: "代表大义与职责守卫此地，人在城在，绝无未战先降的道理。" },
+        { type: "B", text: "答应过别人的事未办完，欠我的血债未讨回，阎王也收不走我。" },
+        { type: "C", text: "万物皆为我用，规则是死的而我是活的，必能撕开一条生路。" },
+        { type: "D", text: "早已将得失看淡，肉身虽在苦海煎熬，内心仍如磐石般寂静纯粹。" }
+      ]
+    },
+    {
+      id: 6,
+      stage: "第二幕：绝境与交锋",
+      title: "遭遇一个身量庞大、正面交锋极难破防的强悍对手，你的战斗风格是：",
+      options: [
+        { type: "A", text: "不闪不避硬吃反震，以最扎实沉稳的重拳正面击碎对方的防线。" },
+        { type: "B", text: "潜入视线盲区听风辨位，以寸短之刃专挑关节与脉门狠辣下刀。" },
+        { type: "C", text: "穿花绕树上房揭瓦，利用一切地形高低差把对手玩弄于股掌之间。" },
+        { type: "D", text: "以千百次锤炼的基本功见招拆招，不急不躁，生生将对方耗竭。" }
+      ]
+    },
+    {
+      id: 7,
+      stage: "第二幕：绝境与交锋",
+      title: "对方拿出能让你瞬间暴富但触碰红线的筹码，劝你“各退一步”，你的回应是：",
+      options: [
+        { type: "A", text: "当场扣押作为行贿罪证，严词警告对方休想用铜臭收买原则。" },
+        { type: "B", text: "面不改色收下筹码摸清渠道，转手作为致命把柄将其彻底送走。" },
+        { type: "C", text: "拿他的钱反过来砸他的盘，用敌人的资源来完成自己的大计。" },
+        { type: "D", text: "粗茶淡饭已然知足，对浮财毫无欲望，淡淡拒绝后转身就走。" }
+      ]
+    },
+    {
+      id: 8,
+      stage: "第二幕：绝境与交锋",
+      title: "遭遇事业或人生的毁灭性打击，一切归零时，你如何重新站起？",
+      options: [
+        { type: "A", text: "咬碎牙齿往肚里咽，带着不服输的凶光杀回主战场夺回阵地。" },
+        { type: "B", text: "隐入市井暗中舔舐伤口，在无人知晓的深处重新磨砺最利的刀锋。" },
+        { type: "C", text: "大笑三声斩断前尘，换个全新行当大闹一番，天地自有人容我。" },
+        { type: "D", text: "回归最简朴的日常训练，流汗、静心，在日复一日中重塑筋骨。" }
+      ]
+    },
+    {
+      id: 9,
+      stage: "第三幕：情义与底线",
+      title: "当崇高的大义规则与你极度珍视的至亲好友发生根本冲突，你会：",
+      options: [
+        { type: "A", text: "公道不能因一人而废，依法依规处置，事后愿以己身代其受难。" },
+        { type: "B", text: "若天下容不下我在乎之人，我便替他杀出一条血路，与世为敌。" },
+        { type: "C", text: "绝不接受二选一的悲剧，用最诡谲的双赢之计瞒过所有人带走他。" },
+        { type: "D", text: "不言大义亦不多言私情，不离不弃陪在身边，共同咽下全部因果。" }
+      ]
+    },
+    {
+      id: 10,
+      stage: "第三幕：情义与底线",
+      title: "面对至交好友的当面指责甚至背后出卖，你最终的选择是：",
+      options: [
+        { type: "A", text: "当面把是非曲直清算彻底，从此各走各路，恩断义绝明明白白。" },
+        { type: "B", text: "一句废话都不多留，心底彻底视其为死人，若敢再犯格杀勿论。" },
+        { type: "C", text: "感叹世事难料人心易变，挥挥手各奔前程，不留半分怨怼心结。" },
+        { type: "D", text: "反求诸己后彻底放下，安于独处的清净，再不为身外是非动心神。" }
+      ]
+    },
+    {
+      id: 11,
+      stage: "第三幕：情义与底线",
+      title: "尘埃落定，那个处心积虑陷害众人的仇敌终于瘫倒在你的脚下，你会：",
+      options: [
+        { type: "A", text: "咔嚓一声锁上手铐移交法办，让天下所有人看他在阳光下受审。" },
+        { type: "B", text: "手起刀落断绝生机，绝不给毒蛇任何死灰复燃、反咬一口的可能。" },
+        { type: "C", text: "剥夺他最在乎的权势与钱财，留其性命，看他在泥潭中苟活煎熬。" },
+        { type: "D", text: "既已失去威胁便不值一顾，掸掸衣角尘土，安安静静归家吃饭。" }
+      ]
+    },
+    {
+      id: 12,
+      stage: "第三幕：情义与底线",
+      title: "经历了一场旷日持久的恶战身心俱疲，你最渴望的“回血”状态是：",
+      options: [
+        { type: "A", text: "约上过命的弟兄痛快喝烈酒，把胸中憋着的恶气全部吼出胸膛。" },
+        { type: "B", text: "一个人躲进避雨的角落，洗净手上血迹，闭上眼享受久违的安宁。" },
+        { type: "C", text: "彻底抛开所有职责与包袱，去广阔天地间浪荡一段时日，自在呼吸。" },
+        { type: "D", text: "关掉手机闭门谢客，给家人做一顿热饭，修修物件练练基本功。" }
+      ]
+    },
+    {
+      id: 13,
+      stage: "第四幕：终局与心志",
+      title: "若有朝一日你登峰造极、名动天下，你接下来的人生规划是：",
+      options: [
+        { type: "A", text: "继续镇守在最危险的前线，只要这世间还有不平事，便一日不卸甲。" },
+        { type: "B", text: "换个名字隐姓埋名于市井，做个不起眼的普通掌柜安稳度过余生。" },
+        { type: "C", text: "广收门徒倾囊相授，打破门第偏见，让自己的道统流传五湖四海。" },
+        { type: "D", text: "依然住在原本朴素的小院，早起练功日落而息，名声于我如浮云。" }
+      ]
+    },
+    {
+      id: 14,
+      stage: "第四幕：终局与心志",
+      title: "在你的理解中，一个武者/硬汉最令人生畏的内核究竟是什么？",
+      options: [
+        { type: "A", text: "无论世道多么浑浊，眼里永远揉不得沙子、誓死不屈的刚硬骨头。" },
+        { type: "B", text: "置身黑暗亦能心如明镜，出招必中、绝无迟疑与仁慈的致命专注。" },
+        { type: "C", text: "顺境逆境皆能游戏自如，没有任何枷锁能困住灵魂的洒脱与通达。" },
+        { type: "D", text: "不被外界浮华绑架，物欲极低，耐得住寂寞且千锤百炼的钝感力。" }
+      ]
+    },
+    {
+      id: 15,
+      stage: "第四幕：终局与心志",
+      title: "如果必须在你的兵器刃口上刻下一行字作为一生印记，你会选：",
+      options: [
+        { type: "A", text: "邪不压正，法网难逃。" },
+        { type: "B", text: "心如明镜，盲刀听风。" },
+        { type: "C", text: "翻江倒海，天地自游。" },
+        { type: "D", text: "守正自持，千锤百炼。" }
+      ]
+    }
+  ],
+
+  // 20 位角色配置与四维向量 [A, B, C, D]
+  // 五维雷达图依次为: [破局攻杀, 沉静定力, 公道秩序, 灵动机变, 本真纯粹]
+  characters: [
+    {
+      id: "lihongqi",
+      image: "images/lihongqi.jpg",
+      name: "李红旗",
+      movie: "《东北警察故事》",
+      quote: "“在我这儿，规矩就是规矩。”",
+      tag: "【暴风出警】· 物理超度一切花里胡哨",
+      vector: [9, 2, 1, 3],
+      radar: [96, 75, 98, 62, 80],
+      analysis: {
+        totem: "行走的刑法实体版，信奉用最沉稳硬核的近身摔跤让恶徒屈服于公理。",
+        mirror: "职场中眼里容不下任何蛀虫与甩锅侠，敢于掀桌对抗潜规则的硬骨干。",
+        blindspot: "性格刚烈耿直，容易低估阴险对手的迂回算计与盘外招。"
+      },
+      bonds: { ally: "黄铭金（铁血法治盟友）", rival: "成乙（法网与私刑的理念分歧）" }
+    },
+    {
+      id: "chengyi",
+      image: "images/chengyi.jpg",
+      name: "成乙",
+      movie: "《目中无人》",
+      quote: "“我叫成瞎子，抓贼的。”",
+      tag: "【听风断煞】· 幽夜里的一线霜刃",
+      vector: [2, 9, 1, 3],
+      radar: [92, 98, 68, 85, 88],
+      analysis: {
+        totem: "心如明镜的独行捉刀人，虽盲其目，却比天下人看得更清是非善恶。",
+        mirror: "平时深藏不露、惜字如金的专业大佬，一旦承诺出手便是寸草不生的绝杀。",
+        blindspot: "背负过重，习惯将所有苦难嚼碎咽进肚里，极度抗拒示弱。"
+      },
+      bonds: { ally: "洪文定（极简寡言的默契）", rival: "李红旗（体制与江湖的界限）" }
+    },
+    {
+      id: "wangwei",
+      image: "images/wangwei.jpg",
+      name: "王伟",
+      movie: "《火遮眼》",
+      quote: "“有些火，一旦遮了眼，就只有血能浇灭。”",
+      tag: "【狂怒烈火】· 绝境搏杀的孤胆血性",
+      vector: [6, 6, 1, 2],
+      radar: [95, 60, 72, 70, 75],
+      analysis: {
+        totem: "被逼入绝境后怒火燃尽理智的狂兽，招式狠辣决绝，为护身边人敢焚尽万物。",
+        mirror: "看似沉静温和，但只要触碰到他的家人与底线，瞬间化身为毁灭级核弹。",
+        blindspot: "情绪上头时容易孤注一掷，容易将自己置于同归于尽的险境。"
+      },
+      bonds: { ally: "张柳成（血性孤勇同盟）", rival: "嬴政（冷血权谋天敌）" }
+    },
+    {
+      id: "hongwending",
+      image: "images/hongwending.jpg",
+      name: "洪文定",
+      movie: "《新少林五祖》",
+      quote: "“爹，枪在人在，我不走。”",
+      tag: "【少年老成】· 稚嫩肩头挑万钧山河",
+      vector: [2, 4, 1, 8],
+      radar: [85, 95, 88, 65, 96],
+      analysis: {
+        totem: "银枪白衣的早慧少年，不苟言笑，将血海深仇与孝道责任化为沉静的杀意。",
+        mirror: "年纪轻轻却有着远超同龄人的稳重与可靠，关键时刻从不掉链子的定海神针。",
+        blindspot: "过早成熟压抑了天性本真，习惯独立吞下委屈而不知如何向人求助。"
+      },
+      bonds: { ally: "巩固（少年英雄气味相投）", rival: "孙小天（跳脱叛逆冲突）" }
+    },
+    {
+      id: "gonggu",
+      image: "images/gonggu.jpg",
+      name: "巩固",
+      movie: "《给爸爸的信》",
+      quote: "“我不怕吃苦，我只怕我爹不来接我。”",
+      tag: "【赤子连心】· 逆境生长的柔韧青竹",
+      vector: [2, 2, 5, 6],
+      radar: [80, 92, 82, 88, 95],
+      analysis: {
+        totem: "绳镖如灵蛇、身骨似钢铁，对至亲有着不可动摇的坚贞信仰。",
+        mirror: "适应环境极强，无论拿到多烂的底牌，都能靠着机智与隐忍打出奇迹逆风翻盘。",
+        blindspot: "情感羁绊是你的至强护甲，也是你唯一的命门死穴。"
+      },
+      bonds: { ally: "谢飞（同龄绝代双骄）", rival: "杨烈钧（冷峻理性对撞）" }
+    },
+    {
+      id: "huangmingjin",
+      image: "images/huangmingjin.jpg",
+      name: "黄铭金",
+      movie: "《缉恶》",
+      quote: "“只要我穿这身皮一天，这道铁门你就休想跨过去。”",
+      tag: "【铁壁封魔】· 巍然不动的大义高墙",
+      vector: [7, 2, 1, 5],
+      radar: [90, 88, 98, 60, 88],
+      analysis: {
+        totem: "横刀立马的禁毒铁汉，身受重创亦不可撼动半分的大义之盾。",
+        mirror: "团队中不可替代的领航者，纪律性极强，用最深沉的责任感撑起一片晴空。",
+        blindspot: "原则性过强有时显得过于严苛刻板，缺少灵活回旋的弹性空间。"
+      },
+      bonds: { ally: "李红旗（正义同道）", rival: "袁为东（正邪虚实之争）" }
+    },
+    {
+      id: "xiemiao",
+      image: "images/xiemiao.jpg",
+      name: "谢苗本人",
+      movie: "《现实·动作匠人》",
+      quote: "“不急不躁，把功夫下在无人看见处，岁月自会给答案。”",
+      tag: "【心流磐石】· 纯粹入定的真功匠人",
+      vector: [1, 1, 2, 11],
+      radar: [82, 100, 86, 70, 100],
+      analysis: {
+        totem: "金牛座 ISFJ 守卫者。物欲极低、喜静寡言，以数十载如一日的真功夫立命。",
+        mirror: "不拉帮结派，不搞虚妄人设，无论时代多浮躁，只靠无可替代的硬核专业立足。",
+        blindspot: "极度厌恶复杂社交与过度曝光，容易因过度专注于技艺而错失投机风口。"
+      },
+      bonds: { ally: "惠忍（禅武如一的宁静）", rival: "孙悟空（喧闹与沉寂的镜像）" }
+    },
+    {
+      id: "zhangliucheng",
+      image: "images/zhangliucheng.jpg",
+      name: "张柳成",
+      movie: "《狂虎危城》",
+      quote: "“城破了，可这口气还没破，我陪你们耗到底！”",
+      tag: "【血肉长城】· 厄难泥潭中的抗争战魂",
+      vector: [6, 5, 1, 3],
+      radar: [92, 85, 80, 68, 86],
+      analysis: {
+        totem: "大疫与狂兽肆虐之际横空出世的平民侠者，粗粝豪壮，敢以身躯阻挡狂潮。",
+        mirror: "危难时刻真正靠得住的患难之交，脏活累活一肩挑，从不言苦。",
+        blindspot: "过于崇尚自我牺牲精神，常常不顾自身死活。"
+      },
+      bonds: { ally: "耿恭（孤城死战气节）", rival: "失烈门（蛮横征服对立）" }
+    },
+    {
+      id: "yingzheng",
+      image: "images/yingzheng.jpg",
+      name: "嬴政",
+      movie: "《宰相小甘罗》",
+      quote: "“如今寡人隐忍不发，只待来日横扫六合。”",
+      tag: "【千古潜龙】· 权谋深渊里的少年帝星",
+      vector: [5, 6, 3, 1],
+      radar: [88, 86, 75, 92, 60],
+      analysis: {
+        totem: "虽身处困局受制于强臣，但眼眸中早已烙印下并吞八荒、一统天下的宏图。",
+        mirror: "胸有惊雷而面如平湖，善于在错综复杂的职场博弈中精准借势布局。",
+        blindspot: "帝王心术过深，凡事皆看利害制衡，难以对人交出纯粹的信任。"
+      },
+      bonds: { ally: "少年李隆基（深宫权谋共鸣）", rival: "谢苗本人（纯粹匠人对立）" }
+    },
+    {
+      id: "huiren",
+      image: "images/huiren.jpg",
+      name: "惠忍",
+      movie: "《少林寺传奇》",
+      quote: "“放下屠刀是佛门慈悲，怒目降魔是贫僧宿命。”",
+      tag: "【怒目金刚】· 慈悲为怀的持戒武僧",
+      vector: [3, 2, 1, 9],
+      radar: [84, 98, 92, 60, 98],
+      analysis: {
+        totem: "身披袈裟心怀慈悲，为救苍生宁可身受万般苦难的大德行者。",
+        mirror: "老好人外表下有着坚如铁石的道德底线，默默奉献而不求一丝功名利禄。",
+        blindspot: "过于慈悲为怀，有时对顽劣之徒留有一线生机反遭毒手暗算。"
+      },
+      bonds: { ally: "智明（少林铁血同门）", rival: "王伟（怒火与空性的反差）" }
+    },
+    {
+      id: "zhiming",
+      image: "images/zhiming.jpg",
+      name: "智明",
+      movie: "《少林寺传奇3》",
+      quote: "“大漠风沙再大，也吹不动少林弟子手里这根铁棍。”",
+      tag: "【大漠铜僧】· 风沙洗练的铁骨孤忠",
+      vector: [5, 3, 1, 6],
+      radar: [88, 94, 94, 62, 92],
+      analysis: {
+        totem: "大漠狂风中护送圣宝的铜皮铁骨，一根齐眉铁棍扫除一切阴谋邪祟。",
+        mirror: "极具执行力的护航者，无论环境多么恶劣，承诺过的事情必然圆满交付。",
+        blindspot: "为人过于耿直坦荡，不知变通，容易陷入别人预设的条条框框。"
+      },
+      bonds: { ally: "耿恭（大漠边塞孤忠）", rival: "袁为东（奇巧幻术的克星）" }
+    },
+    {
+      id: "shiliemen",
+      image: "images/shiliemen.jpg",
+      name: "失烈门",
+      movie: "《忽必烈传奇》",
+      quote: "“雄鹰只在风暴里展翅，这天下当有我失烈门一席之地。”",
+      tag: "【草原苍狼】· 骄烈张扬的马背雄鹰",
+      vector: [6, 2, 6, 1],
+      radar: [90, 68, 70, 85, 68],
+      analysis: {
+        totem: "崇尚强力征服与热血驰骋的草原勇将，敢爱敢恨，豪迈张扬。",
+        mirror: "极富进取心与野心的业务拓荒者，喜欢攻城略地的快感，不服输不认命。",
+        blindspot: "行事容易急功近利，有时因锋芒太露而成为众矢之的。"
+      },
+      bonds: { ally: "孙悟空（烈火雄心相吸）", rival: "惠忍（征伐与避世冲突）" }
+    },
+    {
+      id: "xiefei",
+      image: "images/xiefei.jpg",
+      name: "谢飞",
+      movie: "《小飞侠》",
+      quote: "“功夫是用来锄强扶弱的，看我小飞侠这招飞龙在天！”",
+      tag: "【腾云神童】· 鬼马灵动的无畏飞侠",
+      vector: [2, 1, 8, 4],
+      radar: [78, 80, 72, 98, 90],
+      analysis: {
+        totem: "无拘无束、身轻如燕的天赋武童，在嬉笑戏耍间化解一切凶险危机。",
+        mirror: "跳出思维定式的创意天才，鬼点子层出不穷，能用极其轻巧的方式瓦解大难题。",
+        blindspot: "性格偏向随心所欲，对按部就班的繁文缛节缺乏足够的耐心。"
+      },
+      bonds: { ally: "巩固（少年拍档）", rival: "黄铭金（规矩与自由的博弈）" }
+    },
+    {
+      id: "xinqiji",
+      image: "images/xinqiji.jpg",
+      name: "辛弃疾",
+      movie: "《辛弃疾1162》",
+      quote: "“把吴钩看了，栏杆拍遍，无人会，登临意。”",
+      tag: "【气吞万里】· 文武双极的壮烈将星",
+      vector: [8, 2, 2, 3],
+      radar: [95, 85, 96, 75, 88],
+      analysis: {
+        totem: "五十骑直突五万大营生擒敌酋的孤胆英雄，文能提笔惊天地，武能跨马定河山。",
+        mirror: "胸襟博大、具备远大战略格局的领军人物，能凝聚众人为崇高理想舍生忘死。",
+        blindspot: "理想主义色彩过浓，面对世俗的蝇营狗苟往往容易产生巨大的悲怆感。"
+      },
+      bonds: { ally: "耿恭（保家卫国知己）", rival: "少年李隆基（大义与权谋的殊途）" }
+    },
+    {
+      id: "genggong",
+      image: "images/genggong.jpg",
+      name: "耿恭",
+      movie: "《大汉十三将2》",
+      quote: "“大汉节杖在此，疏勒城有一兵一卒在，汉土不丢！”",
+      tag: "【疏勒铁血】· 死守汉节的狂骨战神",
+      vector: [8, 1, 1, 5],
+      radar: [98, 96, 98, 55, 92],
+      analysis: {
+        totem: "疏勒孤城战至十三人的铁血守护者，煮铠弩为食，宁死不坠民族风骨。",
+        mirror: "忠诚度与定力拉满的硬骨头，在全盘崩塌的逆境中依然能坚守到最后一口气。",
+        blindspot: "死战到底不知妥协撤退，往往以极其惨烈的代价换取底线尊严。"
+      },
+      bonds: { ally: "辛弃疾（英魂相照）", rival: "失烈门（死守与掠夺宿敌）" }
+    },
+    {
+      id: "yuanweidong",
+      image: "images/yuanweidong.jpg",
+      name: "袁为东",
+      movie: "《奇门遁甲》",
+      quote: "“奇门顺逆逆顺行，天地万物皆为我局中生克。”",
+      tag: "【幻术奇谋】· 颠倒乾坤的隐世方士",
+      vector: [1, 5, 7, 2],
+      radar: [80, 82, 60, 96, 80],
+      analysis: {
+        totem: "精通八卦符箓与虚实相生的奇门高手，不以蛮力取胜，以天地法则借力制胜。",
+        mirror: "善于使用杠杆与降维打击的谋略家，别人拼死肉搏时，你早已看透运行规律。",
+        blindspot: "过度依赖巧劲与局势推演，一旦遭遇完全不讲道理的绝对力量压制易陷被动。"
+      },
+      bonds: { ally: "成乙（暗夜中借力互补）", rival: "智明（硬气功克制幻术）" }
+    },
+    {
+      id: "sunwukong",
+      image: "images/sunwukong.jpg",
+      name: "孙悟空",
+      movie: "《大梦西游》等",
+      quote: "“我要这天再遮不住我眼，要这诸佛都烟消云散！”",
+      tag: "【踏碎凌霄】· 狂傲不羁的斗战胜佛",
+      vector: [4, 1, 9, 1],
+      radar: [98, 70, 50, 98, 85],
+      analysis: {
+        totem: "金箍棒下一扫乾坤浊气的无羁神魔，蔑视一切伪善神佛与不合理的天条规矩。",
+        mirror: "最具创新颠覆力的反叛先锋，永远走在打破教条的第一线，气场强大不可一世。",
+        blindspot: "心高气傲难以驯服，行事过于特立独行容易引来体系的围剿制裁。"
+      },
+      bonds: { ally: "孙小天（神猴血脉一体）", rival: "李红旗（天条与法纪的大碰撞）" }
+    },
+    {
+      id: "yangliejun",
+      image: "images/yangliejun.jpg",
+      name: "杨烈钧",
+      movie: "《破神录》",
+      quote: "“魑魅魍魉皆由心造，我这颗子弹只认天地公理。”",
+      tag: "【破除虚妄】· 枪火与铁拳的终结者",
+      vector: [5, 7, 1, 2],
+      radar: [90, 88, 80, 75, 80],
+      analysis: {
+        totem: "乱世迷信中冷酷扣下扳机的唯物军官，专打装神弄鬼之徒，撕碎一切封建虚妄。",
+        mirror: "极其冷静客观的理性批判者，用事实与逻辑击碎假大空，办事快准狠。",
+        blindspot: "有时过分相信经验与科学逻辑，容易忽略人性中微妙的情感温度。"
+      },
+      bonds: { ally: "王伟（冷热双煞搭档）", rival: "袁为东（科学与玄学的交锋）" }
+    },
+    {
+      id: "sunxiaotian",
+      image: "images/sunxiaotian.jpg",
+      name: "孙小天",
+      movie: "《大神猴》",
+      quote: "“神仙有什么了不起，小爷我就喜欢在市井里快活人间！”",
+      tag: "【游戏人间】· 痞帅快意的少年神猴",
+      vector: [3, 1, 9, 2],
+      radar: [86, 72, 60, 96, 85],
+      analysis: {
+        totem: "生于市井却怀揣纯粹侠肠的灵动少年，玩世不恭的外表下藏着护卫众生的纯真。",
+        mirror: "幽默风趣、天生自来熟的社交破冰高手，再沉闷压抑的环境也能被你点亮活络。",
+        blindspot: "遇事有时喜欢嬉皮笑脸敷衍逃避，关键担当往往需要被逼到悬崖边缘才能激发。"
+      },
+      bonds: { ally: "孙悟空（宿命镜像）", rival: "洪文定（严谨严肃的反义词）" }
+    },
+    {
+      id: "shaonianlilongji",
+      image: "images/shaonianlilongji.jpg",
+      name: "少年李隆基",
+      movie: "《大明宫词》",
+      quote: "“夜宴虽冷，但总有一天天光大亮，朕即盛唐。”",
+      tag: "【夜宴潜锋】· 宫闱夜色中的猎手",
+      vector: [2, 7, 4, 2],
+      radar: [82, 92, 75, 90, 68],
+      analysis: {
+        totem: "身处大明宫血雨腥风之中的潜伏皇孙，眉宇英武，于阴暗角落中安静待机以搏九五。",
+        mirror: "极具城府与战略耐心的进阶者，懂得示弱与收敛锋芒，致命反扑只在刹那之间。",
+        blindspot: "内心情感防线过高，习惯于算计每个人的利用价值而感到孤独。"
+      },
+      bonds: { ally: "嬴政（少年枭雄共振）", rival: "辛弃疾（庙堂私欲对天下大义）" }
+    }
+  ]
+};
+
+// ==========================================================================
+//  测试主交互与计算逻辑 (纯原生JS，零外链依赖，纯本地离线运行)
+// ==========================================================================
+
+
+// 智能图片多格式自适应加载机制 (兼容 .jpg, .png, .jpeg, .JPG, .PNG, .webp)
+const FALLBACK_EXTS = ['.jfif', '.JFIF', '.png', '.jpeg', '.JPG', '.PNG', '.webp', '.WEBP', '.jiff'];
+function handleImageFallback(img) {
+  let tried = img.dataset.triedIndex ? parseInt(img.dataset.triedIndex) : 0;
+  const originalBase = img.dataset.basePath;
+
+  if (originalBase && tried < FALLBACK_EXTS.length) {
+    img.dataset.triedIndex = tried + 1;
+    const nextSrc = originalBase + FALLBACK_EXTS[tried];
+    img.src = nextSrc;
+  } else {
+    // 全部格式尝试均失败时，才退回古风印章占位
+    img.style.display = 'none';
+    document.getElementById('resAvatarPlaceholder').style.display = 'block';
+  }
+}
+
+let currentQuestionIndex = 0;
+let userAnswers = []; // 保存每道题用户的选项: 'A', 'B', 'C', 'D'
+
+// ==========================================================================
+// 1. 页面刚打开瞬间的“水墨初展开卷”特效 (柔和宣纸墨晕，时长 1.2 秒)
+// ==========================================================================
+window.addEventListener("DOMContentLoaded", () => {
+  const overlay = document.getElementById("pageLoadOverlay");
+  const canvas = document.getElementById("pageLoadCanvas");
+  const title = document.getElementById("pageLoadTitle");
+  if (!canvas) return;
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext("2d");
+
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight / 2;
+
+  let radius = 10;
+  const maxRadius = Math.max(window.innerWidth, window.innerHeight) * 1.15;
+  let startTime = performance.now();
+
+  setTimeout(() => {
+    title.classList.add("show");
+  }, 180);
+
+  function animatePageLoad(now) {
+    const elapsed = now - startTime;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 渐进柔和舒展，过程匀速温和
+    radius += (maxRadius - radius) * 0.045 + 3.8;
+
+    // 宣纸上柔润扩散的朱砂与淡金色水晕 (温和典雅)
+    const grad = ctx.createRadialGradient(cx, cy, radius * 0.08, cx, cy, radius);
+    grad.addColorStop(0, "rgba(168, 40, 30, 0.38)");
+    grad.addColorStop(0.3, "rgba(168, 40, 30, 0.18)");
+    grad.addColorStop(0.65, "rgba(140, 106, 45, 0.08)");
+    grad.addColorStop(1, "rgba(245, 240, 230, 0)");
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // 持续运行至 1.2 秒 (1200ms)
+    if (elapsed < 1200) {
+      requestAnimationFrame(animatePageLoad);
+    } else {
+      title.classList.remove("show");
+      overlay.style.transition = "opacity 0.65s ease-out";
+      overlay.style.opacity = "0";
+      setTimeout(() => {
+        overlay.style.display = "none";
+      }, 650);
+    }
+  }
+
+  requestAnimationFrame(animatePageLoad);
+});
+
+// ==========================================================================
+// 2. 点击开始答题时的国风中心水墨画晕染转场 (古法泼墨山水意境，从中心缓缓洇开)
+// ==========================================================================
+function startQuiz(event) {
+  const overlay = document.getElementById("inkTransitionOverlay");
+  const canvas = document.getElementById("inkSplashCanvas");
+  const splashText = document.getElementById("inkSplashText");
+  
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext("2d");
+  
+  overlay.style.display = "flex";
+  overlay.style.opacity = "1";
+  overlay.style.transition = "none";
+
+  // 严格以屏幕中心为晕染核心，展现传统国画中正内敛的意境
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight / 2;
+
+  // 水墨画三重有机墨晕层 (外层水汽、中层烟岚、核心浓朱砂)
+  let layers = [
+    { baseR: 12, maxR: Math.max(window.innerWidth, window.innerHeight) * 1.35, speed: 0.038, seed: 1.2 },
+    { baseR: 8,  maxR: Math.max(window.innerWidth, window.innerHeight) * 1.12, speed: 0.032, seed: 2.8 },
+    { baseR: 3,  maxR: Math.max(window.innerWidth, window.innerHeight) * 0.92, speed: 0.026, seed: 4.5 }
+  ];
+
+  let startTime = performance.now();
+  
+  // 金色发光文字在中心沉静显现
+  setTimeout(() => {
+    splashText.classList.add("show");
+  }, 240);
+
+  function animateInk(now) {
+    const elapsed = now - startTime;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 绘制具有水墨国画自然水纹起伏的有机墨晕层 (告别机械圆)
+    layers.forEach((layer, idx) => {
+      layer.baseR += (layer.maxR - layer.baseR) * layer.speed + 3.2;
+
+      const steps = 72; // 72 段高精度自然曲线
+      ctx.beginPath();
+      for (let i = 0; i <= steps; i++) {
+        const theta = (Math.PI * 2 / steps) * i;
+        // 模拟水墨遇纸时自然向外渗透的多频微波纹
+        const wave = 
+          Math.sin(theta * 3 + layer.seed + elapsed * 0.0012) * 0.12 + 
+          Math.cos(theta * 5 - layer.seed * 0.8) * 0.07 + 
+          Math.sin(theta * 2 + layer.seed) * 0.06;
+        
+        const r = Math.max(2, layer.baseR * (1 + wave));
+        const px = cx + Math.cos(theta) * r;
+        const py = cy + Math.sin(theta) * r;
+
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+
+      // 水墨层次过渡：深朱砂墨核心向外渐变洇染入宣纸米底
+      const grad = ctx.createRadialGradient(cx, cy, layer.baseR * 0.12, cx, cy, layer.baseR * 1.08);
+      if (idx === 0) {
+        grad.addColorStop(0, "rgba(186, 60, 48, 0.4)");
+        grad.addColorStop(0.5, "rgba(168, 40, 30, 0.2)");
+        grad.addColorStop(1, "rgba(245, 240, 230, 0)");
+      } else if (idx === 1) {
+        grad.addColorStop(0, "rgba(172, 36, 26, 0.72)");
+        grad.addColorStop(0.6, "rgba(168, 40, 30, 0.45)");
+        grad.addColorStop(1, "rgba(245, 240, 230, 0)");
+      } else {
+        grad.addColorStop(0, "rgba(152, 30, 22, 0.96)");
+        grad.addColorStop(0.7, "rgba(168, 40, 30, 0.85)");
+        grad.addColorStop(1, "rgba(172, 36, 26, 0.15)");
+      }
+
+      ctx.fillStyle = grad;
+      ctx.fill();
+    });
+
+    if (elapsed < 1100) {
+      requestAnimationFrame(animateInk);
+    } else {
+      document.getElementById("startScreen").style.display = "none";
+      document.getElementById("quizScreen").style.display = "block";
+      document.getElementById("resultScreen").style.display = "none";
+      currentQuestionIndex = 0;
+      userAnswers = [];
+      renderQuestion();
+
+      setTimeout(() => {
+        splashText.classList.remove("show");
+        overlay.style.transition = "opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1)";
+        overlay.style.opacity = "0";
+        setTimeout(() => {
+          overlay.style.display = "none";
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }, 800);
+      }, 400);
+    }
+  }
+
+  requestAnimationFrame(animateInk);
+}
+
+function renderQuestion() {
+  const q = QUIZ_CONFIG.questions[currentQuestionIndex];
+  document.getElementById("progressText").innerText = `第 ${q.id} / ${QUIZ_CONFIG.questions.length} 题`;
+  document.getElementById("questionWatermark").innerText = q.id < 10 ? `0${q.id}` : `${q.id}`;
+  
+  const pct = (currentQuestionIndex / QUIZ_CONFIG.questions.length) * 100;
+  document.getElementById("progressFill").style.width = `${pct}%`;
+
+  document.getElementById("questionTitle").innerText = `${q.title}`;
+  
+  const optionsList = document.getElementById("optionsList");
+  optionsList.innerHTML = "";
+
+  q.options.forEach(opt => {
+    const item = document.createElement("div");
+    item.className = "option-item" + (userAnswers[currentQuestionIndex] === opt.type ? " selected" : "");
+    item.innerHTML = `
+      <div class="option-tag">${opt.type}</div>
+      <div class="option-text">${opt.text}</div>
+    `;
+    item.onclick = (e) => selectOption(opt.type, e, item);
+    optionsList.appendChild(item);
+  });
+
+  const btnPrev = document.getElementById("btnPrev");
+  btnPrev.style.visibility = currentQuestionIndex > 0 ? "visible" : "hidden";
+}
+
+function selectOption(type, event, element) {
+  if (event && element) {
+    createRipple(event, element);
+    element.classList.add("clicked");
+  }
+
+  userAnswers[currentQuestionIndex] = type;
+  
+  setTimeout(() => {
+    if (currentQuestionIndex < QUIZ_CONFIG.questions.length - 1) {
+      currentQuestionIndex++;
+      renderQuestion();
+    } else {
+      document.getElementById("quizScreen").style.display = "none";
+      document.getElementById("loadingScreen").style.display = "block";
+      setTimeout(() => {
+        document.getElementById("loadingScreen").style.display = "none";
+        showResult();
+      }, 1200);
+    }
+  }, 250);
+}
+
+function createRipple(e, target) {
+  const rect = target.getBoundingClientRect();
+  const circle = document.createElement("span");
+  const diameter = Math.max(rect.width, rect.height);
+  const radius = diameter / 2;
+
+  circle.style.width = circle.style.height = `${diameter}px`;
+  circle.style.left = `${e.clientX - rect.left - radius}px`;
+  circle.style.top = `${e.clientY - rect.top - radius}px`;
+  circle.classList.add("ink-ripple");
+
+  const existing = target.getElementsByClassName("ink-ripple")[0];
+  if (existing) existing.remove();
+
+  target.appendChild(circle);
+}
+
+function prevQuestion() {
+  if (currentQuestionIndex > 0) {
+    currentQuestionIndex--;
+    renderQuestion();
+  }
+}
+
+function showResult() {
+  document.getElementById("quizScreen").style.display = "none";
+  document.getElementById("resultScreen").style.display = "block";
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  let counts = { A: 0, B: 0, C: 0, D: 0 };
+  userAnswers.forEach(ans => {
+    if (counts[ans] !== undefined) counts[ans]++;
+  });
+  const userVec = [counts.A, counts.B, counts.C, counts.D];
+
+  let scoredList = QUIZ_CONFIG.characters.map(char => {
+    let sumSq = 0;
+    for (let i = 0; i < 4; i++) {
+      let diff = userVec[i] - char.vector[i];
+      sumSq += diff * diff;
+    }
+    let dist = Math.sqrt(sumSq);
+    return { character: char, dist: dist };
+  });
+
+  scoredList.sort((a, b) => a.dist - b.dist);
+
+  const bestMatch = scoredList[0].character;
+  const bestDist = scoredList[0].dist;
+
+  let matchRate = Math.max(68, Math.min(99, Math.round(100 - bestDist * 3.6)));
+
+  const resImg = document.getElementById("resImage");
+  const resPlaceholder = document.getElementById("resAvatarPlaceholder");
+  resPlaceholder.innerText = bestMatch.name.charAt(0);
+
+  if (bestMatch.image && bestMatch.image.trim() !== "") {
+    resImg.style.display = "block";
+    resPlaceholder.style.display = "none";
+    // 记录基础路径用于智能格式试错 (去掉 .jpg 后缀)
+    const rawPath = bestMatch.image;
+    const lastDot = rawPath.lastIndexOf('.');
+    resImg.dataset.basePath = lastDot !== -1 ? rawPath.substring(0, lastDot) : rawPath;
+    resImg.dataset.triedIndex = 0;
+    resImg.src = rawPath;
+  } else {
+    resImg.style.display = "none";
+    resPlaceholder.style.display = "block";
+  }
+
+  document.getElementById("resName").innerText = bestMatch.name;
+  document.getElementById("resMovie").innerText = bestMatch.movie;
+  document.getElementById("resBadge").innerText = bestMatch.tag;
+  document.getElementById("resQuote").innerText = bestMatch.quote || "";
+  document.getElementById("resMatch").innerText = `与你的心性共鸣契合度：${matchRate}%`;
+
+  document.getElementById("resTotem").innerText = bestMatch.analysis.totem;
+  document.getElementById("resMirror").innerText = bestMatch.analysis.mirror;
+  document.getElementById("resBlindspot").innerText = bestMatch.analysis.blindspot;
+
+  document.getElementById("resAlly").innerText = bestMatch.bonds.ally;
+  document.getElementById("resRival").innerText = bestMatch.bonds.rival;
+
+  drawRadar(bestMatch.radar);
+}
+
+function drawRadar(values) {
+  const canvas = document.getElementById("radarCanvas");
+  const ctx = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const radius = 95;
+  const labels = ["破局攻杀", "沉静定力", "公道秩序", "灵动机变", "本真纯粹"];
+  const total = labels.length;
+
+  ctx.clearRect(0, 0, width, height);
+
+  const levels = 4;
+  for (let l = 1; l <= levels; l++) {
+    const curRadius = (radius / levels) * l;
+    ctx.beginPath();
+    for (let i = 0; i < total; i++) {
+      const angle = (Math.PI * 2 / total) * i - Math.PI / 2;
+      const x = centerX + Math.cos(angle) * curRadius;
+      const y = centerY + Math.sin(angle) * curRadius;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = l === levels ? "#bfae95" : "#e0d5c3";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  ctx.font = "bold 12px 'Noto Serif SC', 'Songti SC', serif";
+  ctx.fillStyle = "#8c6a2d";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  for (let i = 0; i < total; i++) {
+    const angle = (Math.PI * 2 / total) * i - Math.PI / 2;
+    const x = centerX + Math.cos(angle) * radius;
+    const y = centerY + Math.sin(angle) * radius;
+
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = "#d4c8b5";
+    ctx.stroke();
+
+    const labelDistance = radius + 24;
+    const lx = centerX + Math.cos(angle) * labelDistance;
+    const ly = centerY + Math.sin(angle) * labelDistance;
+    ctx.fillText(labels[i], lx, ly);
+  }
+
+  ctx.beginPath();
+  for (let i = 0; i < total; i++) {
+    const angle = (Math.PI * 2 / total) * i - Math.PI / 2;
+    const val = values[i] || 75;
+    const valRadius = (val / 100) * radius;
+    const x = centerX + Math.cos(angle) * valRadius;
+    const y = centerY + Math.sin(angle) * valRadius;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+
+  ctx.fillStyle = "rgba(168, 40, 30, 0.2)";
+  ctx.fill();
+  ctx.strokeStyle = "#a8281e";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  for (let i = 0; i < total; i++) {
+    const angle = (Math.PI * 2 / total) * i - Math.PI / 2;
+    const val = values[i] || 75;
+    const valRadius = (val / 100) * radius;
+    const x = centerX + Math.cos(angle) * valRadius;
+    const y = centerY + Math.sin(angle) * valRadius;
+
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = "#a8281e";
+    ctx.fill();
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+}
+
+function restartQuiz() {
+  document.getElementById("startScreen").style.display = "block";
+  document.getElementById("quizScreen").style.display = "none";
+  document.getElementById("resultScreen").style.display = "none";
+  currentQuestionIndex = 0;
+  userAnswers = [];
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function copyResult() {
+  const name = document.getElementById("resName").innerText;
+  const movie = document.getElementById("resMovie").innerText;
+  const badge = document.getElementById("resBadge").innerText;
+  const totem = document.getElementById("resTotem").innerText;
+  const text = `【谢苗宇宙角色测试】\n我的本命化身：${name} (${movie})\n武力标签：${badge}\n精神图腾：${totem}\n快来测测你在谢苗动作宇宙里是哪个角色！`;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => showToast());
+  } else {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    showToast();
+  }
+}
+
+function showToast() {
+  const t = document.getElementById("toast");
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2000);
+}
+</script>
+
+</body>
+</html>
